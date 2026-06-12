@@ -1,1 +1,15 @@
-# afc163-surge-preview
+# afc163/surge-preview
+
+Preview website in surge.sh for every pull request
+
+Hardened by [Chainguard](https://www.chainguard.dev) from the upstream action at [https://github.com/afc163/surge-preview](https://github.com/afc163/surge-preview).
+
+## Versions
+
+| Version | Tag | Upstream commit |
+|---------|-----|-----------------|
+| v1.13.0 | [`v1.13.0`](https://github.com/chainguard-actions/afc163-surge-preview/tree/v1.13.0) | [`bf90a5a`](https://github.com/afc163/surge-preview/commit/bf90a5a86111f6311ca42f0a5a0f80fb0fb03cec) |
+
+## Privacy
+
+This Action contacts Chainguard's licensing server to verify authorization. Connection metadata (IP address, GitHub repository identifier, timestamp, and any metadata encoded in the auth token) is transmitted to Chainguard, Inc. even if authorization is denied in accordance with our [Privacy Notice](https://www.chainguard.dev/legal/privacy-notice)
