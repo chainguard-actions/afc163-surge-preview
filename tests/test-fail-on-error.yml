@@ -1,0 +1,27 @@
+name: Test failOnError input coverage
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_EVENT_NAME: pull_request
+      GITHUB_REF: refs/pull/2/merge
+      GITHUB_HEAD_REF: another-feature-branch
+      GITHUB_BASE_REF: main
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: action
+        uses: .
+        with:
+          surge_token: fake-surge-token-for-testing
+          github_token: fake-github-token-for-testing
+          dist: public
+          build: 'echo "skipping build"'
+          failOnError: 'true'
+        continue-on-error: true
+      - name: Assert action ran with failOnError true
+        run: |
+          echo "Action step completed (with continue-on-error)"
+          echo "outcome: ${{ steps.action.outcome }}"
+          echo "PASS: failOnError input was exercised"

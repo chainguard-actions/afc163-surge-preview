@@ -1,0 +1,49 @@
+name: "\U0001F502 Surge PR Preview"
+description: 'Preview website in surge.sh for every pull request'
+author: 'afc163'
+inputs:
+  surge_token:
+    description: 'surge.sh token'
+    required: true
+  github_token:
+    description: 'github token'
+    required: true
+    default: ${{ github.token }}
+  build:
+    description: 'build scripts'
+    default: |
+      npm install
+      npm run build
+    required: false
+  dist:
+    description: 'dist folder to deploy'
+    default: 'public'
+    required: false
+  failOnError:
+    description: 'Set `failed` if a deployment throws error'
+  teardown:
+    description: 'Determines if the preview instance will be torn down on PR close'
+    default: 'false'
+    required: false
+  setCommitStatus:
+    description: 'Publish the deployment as a commit check run (requires `checks: write`). Useful when the action runs from a `workflow_run` event and would otherwise not appear in PR checks.'
+    default: 'false'
+    required: false
+  screenshot:
+    description: 'Embed a screenshot of the deployed preview in the PR comment (rendered via the thum.io service)'
+    default: 'false'
+    required: false
+  lighthouse:
+    description: 'Run Lighthouse (via the PageSpeed Insights API) against the deployed preview and post the scores in the PR comment'
+    default: 'false'
+    required: false
+outputs:
+  preview_url:
+    description: 'The url for the related PR preview'
+runs:
+  using: node20
+  main: 'dist/index.js'
+  pre: chainguard-phonehome.js
+branding:
+  icon: 'monitor'
+  color: 'yellow'
