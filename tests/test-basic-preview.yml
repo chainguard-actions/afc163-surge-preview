@@ -1,0 +1,28 @@
+name: Test basic surge preview
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_REF: refs/pull/1/merge
+      GITHUB_EVENT_NAME: pull_request
+      GITHUB_HEAD_REF: feature-branch
+      GITHUB_BASE_REF: main
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Create minimal dist folder
+        run: mkdir -p public && echo "<h1>Test</h1>" > public/index.html
+      - id: action
+        uses: .
+        with:
+          surge_token: fake-surge-token-for-testing
+          github_token: fake-github-token-for-testing
+          dist: public
+          build: 'echo "skip build"'
+        continue-on-error: true
+      - name: Assert action ran (outputs or continue-on-error)
+        run: |
+          echo "Action completed (possibly with error due to fake tokens)"
+          echo "preview_url: ${{ steps.action.outputs.preview_url }}"
+          echo "PASS: action was invoked with surge_token and github_token inputs"

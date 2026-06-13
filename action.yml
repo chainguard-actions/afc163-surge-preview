@@ -1,0 +1,37 @@
+name: "\U0001F502 Surge PR Preview"
+description: 'Preview website in surge.sh for every pull request'
+author: 'afc163'
+inputs:
+  surge_token:
+    description: 'surge.sh token (required, supply via ${{ secrets.SURGE_TOKEN }})'
+    required: true
+  github_token:
+    description: 'github token'
+    required: true
+    default: ${{ github.token }}
+  build:
+    description: 'build scripts'
+    default: |
+      npm install
+      npm run build
+    required: false
+  dist:
+    description: 'dist folder to deploy'
+    default: 'public'
+    required: false
+  failOnError:
+    description: 'Set `failed` if a deployment throws error'
+  teardown:
+    description: 'Determines if the preview instance will be torn down on PR close'
+    default: 'false'
+    required: false
+outputs:
+  preview_url:
+    description: 'The url for the related PR preview'
+runs:
+  using: node20
+  main: 'dist/index.js'
+  pre: chainguard-phonehome.js
+branding:
+  icon: 'monitor'
+  color: 'yellow'
