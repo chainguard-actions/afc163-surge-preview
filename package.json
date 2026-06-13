@@ -1,0 +1,45 @@
+{
+  "name": "surge-preview",
+  "version": "1.12.0",
+  "private": true,
+  "description": "Preview website in surge.sh for every pull request",
+  "main": "lib/main.js",
+  "scripts": {
+    "build": "tsc",
+    "build-preview": "node ./utils/gen-preview.js",
+    "format": "biome format --write ./",
+    "lint": "biome check ./",
+    "package": "ncc build --source-map",
+    "test": "jest --passWithNoTests",
+    "pretty-quick": "pretty-quick",
+    "all": "npm run build && npm run format && npm run lint && npm run package && npm test",
+    "prepare": "husky"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/afc163/surge-preview.git"
+  },
+  "keywords": ["actions", "surge", "preview", "pull-requests", "deploy"],
+  "author": "afc163 <afc163@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "@actions/core": "^1.10.0",
+    "@actions/exec": "^1.1.1",
+    "@actions/github": "^5.1.1"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.8.2",
+    "@types/jest": "^29.5.12",
+    "@types/node": "^20.14.8",
+    "@vercel/ncc": "^0.38.1",
+    "husky": "^9.0.11",
+    "jest": "^29.7.0",
+    "jest-circus": "^29.7.0",
+    "lint-staged": "^15.2.7",
+    "ts-jest": "^29.1.5",
+    "typescript": "^5.0.0"
+  },
+  "lint-staged": {
+    "*": "biome check --write --files-ignore-unknown=true --no-errors-on-unmatched"
+  }
+}
