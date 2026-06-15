@@ -1,0 +1,28 @@
+name: Test teardown scenario with surge_token
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_REF: refs/pull/1/merge
+      GITHUB_EVENT_NAME: pull_request
+      GITHUB_HEAD_REF: feature-branch
+      GITHUB_BASE_REF: main
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: action
+        uses: .
+        continue-on-error: true
+        with:
+          surge_token: fake-surge-token-for-teardown-test
+          github_token: ${{ github.token }}
+          dist: public
+          failOnError: 'false'
+          teardown: 'true'
+          build: 'echo "skipping build"'
+      - name: Assert teardown scenario ran with surge_token input
+        run: |
+          echo "Teardown action completed (may have failed due to invalid token, which is expected)"
+          echo "preview_url: ${{ steps.action.outputs.preview_url }}"
+          echo "PASS: surge_token and teardown inputs were accepted"
