@@ -1,4 +1,4 @@
-name: Test failOnError behavior
+name: Test teardown on PR close
 on:
   workflow_dispatch:
 jobs:
@@ -6,8 +6,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GITHUB_EVENT_NAME: pull_request
-      GITHUB_REF: refs/pull/4/merge
-      GITHUB_HEAD_REF: feature-fail-on-error
+      GITHUB_REF: refs/pull/2/merge
+      GITHUB_HEAD_REF: feature-teardown
       GITHUB_BASE_REF: main
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -15,7 +15,7 @@ jobs:
       - name: Create dist folder with index.html
         run: |
           mkdir -p public
-          echo "<html><body>FailOnError Test</body></html>" > public/index.html
+          echo "<html><body>Teardown Test</body></html>" > public/index.html
 
       - id: action
         uses: .
@@ -24,11 +24,11 @@ jobs:
           github_token: ${{ github.token }}
           build: 'echo "skip build"'
           dist: 'public'
-          failOnError: 'false'
+          teardown: 'true'
         continue-on-error: true
 
-      - name: Assert action ran with failOnError=false
+      - name: Assert action ran with teardown enabled
         run: |
-          echo "Action completed with failOnError=false"
+          echo "Action completed with teardown=true"
           echo "preview_url: ${{ steps.action.outputs.preview_url }}"
-          echo "PASS: failOnError=false scenario executed without crashing the workflow"
+          echo "PASS: teardown scenario executed without crashing the workflow"

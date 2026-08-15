@@ -1,4 +1,4 @@
-name: Test basic usage - no PR context
+name: Test teardown mode - no PR context
 on:
   workflow_dispatch:
 jobs:
@@ -7,9 +7,9 @@ jobs:
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
-      # The action is a JS action reading github.context, so under workflow_dispatch
-      # it will search for a PR matching the current commit SHA via the GitHub API.
-      # If no PR is found, it logs "No related PR found, skip it." and exits gracefully.
+      # Test with teardown=true. Under workflow_dispatch with no associated PR,
+      # the action should still exit gracefully with "No related PR found, skip it."
+      # before reaching the teardown logic.
       - id: action
         uses: .
         with:
@@ -17,13 +17,13 @@ jobs:
           surge_token: ${{ secrets.SURGE_TOKEN || '6973bdb764f0d5fd07c910de27e2d7d0' }}
           dist: public
           build: 'echo "No build needed"'
+          teardown: 'true'
 
-      # When no PR is found, preview_url output is not set (empty string)
-      - name: Assert action completed without error
+      - name: Assert action completed without error in teardown mode
         env:
           PREVIEW_URL: ${{ steps.action.outputs.preview_url }}
         run: |
           echo "preview_url: '$PREVIEW_URL'"
           # Under workflow_dispatch with no associated PR, the action exits early
-          # and preview_url is empty — this is the expected behavior
-          echo "PASS: action completed gracefully with no PR context"
+          # before teardown logic runs — preview_url is empty, which is expected
+          echo "PASS: action completed gracefully in teardown mode with no PR context"

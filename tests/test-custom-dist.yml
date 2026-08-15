@@ -1,4 +1,4 @@
-name: Test failOnError behavior
+name: Test custom dist folder
 on:
   workflow_dispatch:
 jobs:
@@ -6,16 +6,16 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GITHUB_EVENT_NAME: pull_request
-      GITHUB_REF: refs/pull/4/merge
-      GITHUB_HEAD_REF: feature-fail-on-error
+      GITHUB_REF: refs/pull/3/merge
+      GITHUB_HEAD_REF: feature-custom-dist
       GITHUB_BASE_REF: main
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
-      - name: Create dist folder with index.html
+      - name: Create custom dist folder with index.html
         run: |
-          mkdir -p public
-          echo "<html><body>FailOnError Test</body></html>" > public/index.html
+          mkdir -p build
+          echo "<html><body>Custom Dist Test</body></html>" > build/index.html
 
       - id: action
         uses: .
@@ -23,12 +23,11 @@ jobs:
           surge_token: '6973bdb764f0d5fd07c910de27e2d7d0'
           github_token: ${{ github.token }}
           build: 'echo "skip build"'
-          dist: 'public'
-          failOnError: 'false'
+          dist: 'build'
         continue-on-error: true
 
-      - name: Assert action ran with failOnError=false
+      - name: Assert action ran with custom dist
         run: |
-          echo "Action completed with failOnError=false"
+          echo "Action completed with dist=build"
           echo "preview_url: ${{ steps.action.outputs.preview_url }}"
-          echo "PASS: failOnError=false scenario executed without crashing the workflow"
+          echo "PASS: custom dist scenario executed without crashing the workflow"

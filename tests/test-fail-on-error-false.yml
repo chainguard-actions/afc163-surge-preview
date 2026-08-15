@@ -1,0 +1,34 @@
+name: Test failOnError false - graceful exit
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      # Test with failOnError not set (defaults to false).
+      # Under workflow_dispatch with no associated PR, the action exits gracefully.
+      # Even if deployment errors occur, failOnError=false means the workflow
+      # step should not be marked as failed.
+      - id: action
+        uses: .
+        with:
+          github_token: ${{ github.token }}
+          surge_token: ${{ secrets.SURGE_TOKEN || '6973bdb764f0d5fd07c910de27e2d7d0' }}
+          dist: public
+          build: 'echo "No build needed"'
+          failOnError: 'false'
+
+      - name: Assert step outcome is success
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+          PREVIEW_URL: ${{ steps.action.outputs.preview_url }}
+        run: |
+          echo "step outcome: '$OUTCOME'"
+          echo "preview_url: '$PREVIEW_URL'"
+          if [ "$OUTCOME" != "success" ]; then
+            echo "FAIL: expected step outcome 'success' but got '$OUTCOME'"
+            exit 1
+          fi
+          echo "PASS: action completed with success outcome and failOnError=false"
