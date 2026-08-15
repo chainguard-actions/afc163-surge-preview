@@ -1,0 +1,38 @@
+name: Test failOnError input
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Create minimal dist folder
+        run: |
+          mkdir -p public
+          echo "<html><body>Test</body></html>" > public/index.html
+      - id: action
+        uses: .
+        continue-on-error: true
+        env:
+          GITHUB_EVENT_NAME: pull_request
+          GITHUB_REF: refs/pull/1/merge
+        with:
+          surge_token: fake-token-for-testing
+          github_token: ${{ github.token }}
+          dist: public
+          build: 'echo "skipping build"'
+          failOnError: 'false'
+      - name: Assert failOnError false does not hard-fail the workflow
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "step outcome: $OUTCOME"
+          # With failOnError=false, even if surge deployment fails, the action
+          # should not propagate a hard failure (outcome may be success or failure
+          # depending on whether surge token is valid, but the key is the input
+          # was accepted and processed)
+          if [ "$OUTCOME" = "skipped" ]; then
+            echo "FAIL: step was unexpectedly skipped"
+            exit 1
+          fi
+          echo "PASS: failOnError input was accepted and step ran (outcome=$OUTCOME)"

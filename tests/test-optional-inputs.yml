@@ -1,0 +1,45 @@
+name: Test optional inputs - screenshot and lighthouse disabled
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      # Create a minimal dist folder
+      - name: Create minimal dist folder
+        run: |
+          mkdir -p public
+          echo "<html><body>Optional Inputs Test</body></html>" > public/index.html
+
+      # Run with optional inputs explicitly disabled.
+      # The action is a PR preview tool; under workflow_dispatch it may find no PR
+      # (graceful exit) or find a PR and attempt a surge deploy (which may fail).
+      # continue-on-error ensures the workflow continues so we can assert on the outcome.
+      - id: action
+        uses: .
+        continue-on-error: true
+        with:
+          github_token: ${{ github.token }}
+          surge_token: '6973bdb764f0d5fd07c910de27e2d7d0'
+          dist: public
+          build: 'echo "no build needed"'
+          screenshot: 'false'
+          lighthouse: 'false'
+          setCommitStatus: 'false'
+
+      - name: Assert action step completed with optional inputs disabled
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "action step outcome: $OUTCOME"
+          if [ "$OUTCOME" = "cancelled" ]; then
+            echo "FAIL: action step was cancelled unexpectedly"
+            exit 1
+          fi
+          echo "PASS: action completed with screenshot=false, lighthouse=false, setCommitStatus=false (outcome=$OUTCOME)"

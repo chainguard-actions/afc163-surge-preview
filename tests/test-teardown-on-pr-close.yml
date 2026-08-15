@@ -1,4 +1,4 @@
-name: Test basic PR preview
+name: Test teardown on PR close
 on:
   workflow_dispatch:
 jobs:
@@ -6,8 +6,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GITHUB_EVENT_NAME: pull_request
-      GITHUB_REF: refs/pull/1/merge
-      GITHUB_HEAD_REF: feature-branch
+      GITHUB_REF: refs/pull/2/merge
+      GITHUB_HEAD_REF: feature-teardown
       GITHUB_BASE_REF: main
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -15,7 +15,7 @@ jobs:
       - name: Create minimal dist folder
         run: |
           mkdir -p public
-          echo "<html><body>Hello Surge Preview</body></html>" > public/index.html
+          echo "<html><body>Teardown Test</body></html>" > public/index.html
 
       - id: action
         uses: .
@@ -24,19 +24,18 @@ jobs:
           github_token: ${{ github.token }}
           build: 'echo "no build needed"'
           dist: 'public'
+          teardown: 'true'
         continue-on-error: true
 
-      - name: Assert preview_url output is set or action ran
+      - name: Assert teardown action ran
         env:
-          PREVIEW_URL: ${{ steps.action.outputs.preview_url }}
           OUTCOME: ${{ steps.action.outcome }}
         run: |
           echo "outcome: $OUTCOME"
-          echo "preview_url: $PREVIEW_URL"
           # The action may fail due to missing real PR context or network,
           # but it should at least attempt to run (not be skipped).
           if [ "$OUTCOME" = "skipped" ]; then
             echo "FAIL: action was skipped unexpectedly"
             exit 1
           fi
-          echo "PASS: action ran with outcome=$OUTCOME"
+          echo "PASS: teardown action ran with outcome=$OUTCOME"
