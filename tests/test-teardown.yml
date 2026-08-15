@@ -1,4 +1,4 @@
-name: Test failOnError option - graceful exit when no PR found
+name: Test teardown option - graceful exit when no PR found
 on:
   workflow_dispatch:
 jobs:
@@ -7,16 +7,16 @@ jobs:
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
-      - name: Run surge-preview action with failOnError enabled
+      - name: Run surge-preview action with teardown enabled
         id: action
         uses: .
         with:
           github_token: ${{ github.token }}
           surge_token: ${{ secrets.SURGE_TOKEN || '6973bdb764f0d5fd07c910de27e2d7d0' }}
           dist: public
-          failOnError: 'true'
+          teardown: 'true'
         # Under workflow_dispatch with no associated PR, the action should exit
-        # gracefully before any deployment attempt, so failOnError has no effect.
+        # gracefully before reaching teardown logic.
         continue-on-error: true
 
       - name: Assert action completed without hard failure
@@ -35,6 +35,7 @@ jobs:
           PREVIEW_URL: ${{ steps.action.outputs.preview_url }}
         run: |
           echo "preview_url: '$PREVIEW_URL'"
+          # When no PR is found, the action returns early before setting preview_url.
           if [ -n "$PREVIEW_URL" ]; then
             echo "INFO: preview_url was set to '$PREVIEW_URL' (PR may have been found via API search)"
           else
