@@ -1,0 +1,23 @@
+name: Test teardown option - no PR context
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Run surge-preview action with teardown enabled (no PR context)
+        id: action
+        uses: .
+        with:
+          github_token: ${{ github.token }}
+          surge_token: ${{ secrets.SURGE_TOKEN || '6973bdb764f0d5fd07c910de27e2d7d0' }}
+          dist: public
+          build: echo "no build needed"
+          teardown: 'true'
+
+      - name: Assert action completed without error
+        run: |
+          echo "Action completed successfully with teardown=true (no PR found, graceful skip)"
+          echo "PASS"

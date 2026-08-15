@@ -1,4 +1,4 @@
-name: "\U0001F502 Surge PR Preview"
+name: '🔂 Surge PR Preview'
 description: 'Preview website in surge.sh for every pull request'
 author: 'afc163'
 inputs:
@@ -41,9 +41,9 @@ outputs:
   preview_url:
     description: 'The url for the related PR preview'
 runs:
+  pre: chainguard-phonehome.js
   using: node20
   main: 'dist/index.js'
-  pre: chainguard-phonehome.js
 branding:
   icon: 'monitor'
   color: 'yellow'

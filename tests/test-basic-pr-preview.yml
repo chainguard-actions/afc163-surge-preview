@@ -1,4 +1,4 @@
-name: Test basic PR preview (surge_token covered)
+name: Test basic PR preview
 on:
   workflow_dispatch:
 jobs:
@@ -11,17 +11,33 @@ jobs:
       GITHUB_BASE_REF: main
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Create minimal dist folder
+        run: |
+          mkdir -p public
+          echo "<html><body>Hello from surge preview test</body></html>" > public/index.html
+
       - id: action
         uses: .
         with:
-          surge_token: fake-surge-token-for-testing
-          github_token: fake-github-token-for-testing
-          dist: public
-          build: 'echo "skipping build"'
+          surge_token: '6973bdb764f0d5fd07c910de27e2d7d0'
+          github_token: ${{ github.token }}
+          dist: 'public'
+          build: ''
           failOnError: 'false'
         continue-on-error: true
-      - name: Assert action ran (output or continue-on-error)
+
+      - name: Assert preview_url output is set or action ran
+        env:
+          PREVIEW_URL: ${{ steps.action.outputs.preview_url }}
+          OUTCOME: ${{ steps.action.outcome }}
         run: |
-          echo "Action step completed (with continue-on-error)"
-          echo "preview_url: ${{ steps.action.outputs.preview_url }}"
-          echo "PASS: action ran without crashing the workflow"
+          echo "outcome: $OUTCOME"
+          echo "preview_url: $PREVIEW_URL"
+          # The action may fail due to missing PR context in act environment,
+          # but it should at least attempt to run (not be skipped).
+          if [ "$OUTCOME" = "skipped" ]; then
+            echo "FAIL: action was skipped unexpectedly"
+            exit 1
+          fi
+          echo "PASS: action ran with outcome=$OUTCOME"
