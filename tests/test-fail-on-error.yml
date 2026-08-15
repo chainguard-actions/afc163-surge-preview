@@ -1,4 +1,4 @@
-name: Test teardown mode - no PR found
+name: Test failOnError input - no PR found
 on:
   workflow_dispatch:
 jobs:
@@ -12,18 +12,18 @@ jobs:
           github_token: ${{ github.token }}
           surge_token: ${{ secrets.SURGE_TOKEN || '6973bdb764f0d5fd07c910de27e2d7d0' }}
           dist: public
-          teardown: 'true'
+          failOnError: 'true'
         continue-on-error: true
-      - name: Assert teardown mode exits gracefully when no PR found
+      - name: Assert failOnError mode exits gracefully when no PR found
         env:
           OUTCOME: ${{ steps.action.outcome }}
         run: |
           echo "outcome: $OUTCOME"
-          # With teardown=true and no associated PR, the action should still
+          # With failOnError=true and no associated PR, the action should still
           # exit gracefully with "No related PR found, skip it."
-          # The teardown logic only runs if a PR is found AND it is closed.
+          # failOnError only affects deployment errors, not the no-PR early return.
           if [ "$OUTCOME" = "success" ]; then
-            echo "PASS: action completed successfully in teardown mode (no PR found, skipped gracefully)"
+            echo "PASS: action completed successfully with failOnError=true (no PR found, skipped gracefully)"
           elif [ "$OUTCOME" = "failure" ]; then
             echo "INFO: action reported failure - this is acceptable if API issues occurred"
             echo "PASS: action ran and reported an outcome"

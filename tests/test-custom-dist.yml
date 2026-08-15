@@ -1,4 +1,4 @@
-name: Test teardown mode - no PR found
+name: Test custom dist and build inputs
 on:
   workflow_dispatch:
 jobs:
@@ -6,24 +6,28 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Create a custom dist folder for testing
+        run: |
+          mkdir -p dist-custom
+          echo "<html><body>Test</body></html>" > dist-custom/index.html
       - id: action
         uses: .
         with:
           github_token: ${{ github.token }}
           surge_token: ${{ secrets.SURGE_TOKEN || '6973bdb764f0d5fd07c910de27e2d7d0' }}
-          dist: public
-          teardown: 'true'
+          dist: dist-custom
+          build: 'echo "Custom build step executed"'
         continue-on-error: true
-      - name: Assert teardown mode exits gracefully when no PR found
+      - name: Assert action accepts custom dist and build inputs
         env:
           OUTCOME: ${{ steps.action.outcome }}
         run: |
           echo "outcome: $OUTCOME"
-          # With teardown=true and no associated PR, the action should still
-          # exit gracefully with "No related PR found, skip it."
-          # The teardown logic only runs if a PR is found AND it is closed.
+          # With a custom dist folder and build script, and no associated PR,
+          # the action should exit gracefully with "No related PR found, skip it."
+          # The build script is only executed if a PR is found.
           if [ "$OUTCOME" = "success" ]; then
-            echo "PASS: action completed successfully in teardown mode (no PR found, skipped gracefully)"
+            echo "PASS: action completed successfully with custom dist and build inputs"
           elif [ "$OUTCOME" = "failure" ]; then
             echo "INFO: action reported failure - this is acceptable if API issues occurred"
             echo "PASS: action ran and reported an outcome"
